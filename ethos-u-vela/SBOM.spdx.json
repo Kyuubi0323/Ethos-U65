@@ -1,0 +1,64 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-11-12T06:51:14Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "ethos-u-vela-LF_6.12.49_2.2.0",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/aff2f075-2742-44a9-884a-1f34cfc74595",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-8b189ed0-e4db-45a1-9021-c4fe377937e0",
+      "name": "ethos-u-vela",
+      "versionInfo": "4.3.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://git.mlplatform.org/ml/ethos-u/ethos-u-vela.git/",
+      "downloadLocation": "https://pypi.org/project/ethos-u-vela/4.3.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/ethos-u-vela@4.3.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b52ff123-fe45-4da3-889a-a19dfbcda692",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-aff2f075-2742-44a9-884a-1f34cfc74595",
+      "name": "ethos-u-vela",
+      "versionInfo": "LF_6.12.49_2.2.0",
+      "licenseConcluded": "(Apache-2.0)",
+      "licenseDeclared": "(Apache-2.0)",
+      "downloadLocation": "https://github.com/nxp-imx/ethos-u-vela -b lf-6.12.49-2.2.0",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-package-aff2f075-2742-44a9-884a-1f34cfc74595",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-8b189ed0-e4db-45a1-9021-c4fe377937e0"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-aff2f075-2742-44a9-884a-1f34cfc74595"
+    }
+  ]
+}
