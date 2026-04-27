@@ -56,8 +56,8 @@ Stage 5: Write packed bitstream (slice header + interleaved GRC chunks)
 Compressed weight blob (bytes) — DMA'd to SRAM, NPU decompresses on-the-fly
 ```
 
-> **Source**: [ethosu/vela/weight_compressor.py](ethosu/vela/weight_compressor.py#L321) — top-level Python orchestration  
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L1121) — public entry `mlw_reorder_encode()`
+> **Source**: [ethosu/vela/weight_compressor.py](ethos-u-vela/ethosu/vela/weight_compressor.py#L321) — top-level Python orchestration  
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L1121) — public entry `mlw_reorder_encode()`
 
 ---
 
@@ -86,7 +86,7 @@ The TFLite weight zero-point is subtracted once here rather than at every MAC.
 | `0x00` = 0 | 0 - 2 = **-2** |
 | `0x03` = 3 | 3 - 2 = **1** |
 
-> **Source**: [ethosu/vela/weight_compressor.py](ethosu/vela/weight_compressor.py#L362)
+> **Source**: [ethosu/vela/weight_compressor.py](ethos-u-vela/ethosu/vela/weight_compressor.py#L362)
 
 ---
 
@@ -153,7 +153,7 @@ element=8: ky=2, kx=2 → emit W[0..7, 2, 2, 0..7]  (64 values)
 Total: 9 elements × 64 values = 576 int16 values before encoding
 ```
 
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L969) — `reorder()` function
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L969) — `reorder()` function
 
 ---
 
@@ -220,8 +220,8 @@ while ((1 << palbits) <= palbits_val)
 Number of bits needed to store each palette entry value (the *palval*, not the index).
 Minimum 2 bits.
 
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L222) — `create_palette()`  
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L328) — `find_palette()`
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L222) — `create_palette()`  
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L328) — `find_palette()`
 
 ---
 
@@ -283,8 +283,8 @@ Compared to raw binary with palbits=3 (3 bits/value), WDIV=1 saves bits for smal
 (0,1 → 2 bits each) at the cost of extra bits for large indices (4,5 → 4 bits each).
 The Viterbi picks the divisor that minimizes total bits across the whole slice.
 
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L403) — `search_grc_params()`  
-> **Source**: [ethosu/mlw_codec/mlw_common.h](ethosu/mlw_codec/mlw_common.h#L25) — `ZDIV_DISABLE=6`, `WDIV_UNCOMPRESSED=7`
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L403) — `search_grc_params()`  
+> **Source**: [ethosu/mlw_codec/mlw_common.h](ethos-u-vela/ethosu/mlw_codec/mlw_common.h#L25) — `ZDIV_DISABLE=6`, `WDIV_UNCOMPRESSED=7`
 
 ---
 
@@ -324,8 +324,8 @@ Each "slice" is a header + data chunk written by `encode_slice()`:
 Header fixed overhead (no palette): **3+15+3+1+1 = 23 bits**  
 Header with palette (palsize=6, palbits=3): **23+5+5+3+6×3 = 54 bits**
 
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L560) — `encode_slice()`  
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L602-620) — header `bitbuf_put` calls
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L560) — `encode_slice()`  
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L602-620) — header `bitbuf_put` calls
 
 ---
 
@@ -465,8 +465,8 @@ So the **2×2 in the ublock is 2 columns (W) × 2 rows (H)** — 4 spatial posit
 across 8 channels simultaneously. One DPU tick computes `2W × 2H × 8C = 32` output values,
 each requiring `ifm_depth` MACs.
 
-> **Source**: [ethosu/vela/architecture_features.py](ethosu/vela/architecture_features.py#L48) — `Block.__init__(w,h,d)`  
-> **Source**: [ethosu/vela/architecture_features.py](ethosu/vela/architecture_features.py#L222) — U65-256 ublock config
+> **Source**: [ethosu/vela/architecture_features.py](ethos-u-vela/ethosu/vela/architecture_features.py#L48) — `Block.__init__(w,h,d)`  
+> **Source**: [ethosu/vela/architecture_features.py](ethos-u-vela/ethosu/vela/architecture_features.py#L222) — U65-256 ublock config
 
 ---
 
@@ -541,8 +541,8 @@ NPU_SET_IFM_STRIDE_Y = 32          (bytes per row step)
 NPU_SET_IFM_DEPTH_M1 = 7           (depth − 1)
 ```
 
-> **Source**: [ethosu/vela/register_command_stream_util.py](ethosu/vela/register_command_stream_util.py#L152) — `get_strides()` NHWC branch  
-> **Source**: [ethosu/vela/register_command_stream_generator.py](ethosu/vela/register_command_stream_generator.py#L443) — `generate_ifm()`
+> **Source**: [ethosu/vela/register_command_stream_util.py](ethos-u-vela/ethosu/vela/register_command_stream_util.py#L152) — `get_strides()` NHWC branch  
+> **Source**: [ethosu/vela/register_command_stream_generator.py](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L443) — `generate_ifm()`
 
 ---
 
@@ -568,8 +568,8 @@ addr = BASE + h × stride_y
              + (c %  16) × elem_size
 ```
 
-> **Source**: [ethosu/vela/register_command_stream_util.py](ethosu/vela/register_command_stream_util.py#L161) — `get_strides()` NHCWB16 branch  
-> **Source**: [ethosu/vela/register_command_stream_util.py](ethosu/vela/register_command_stream_util.py#L174) — `get_address()` formula
+> **Source**: [ethosu/vela/register_command_stream_util.py](ethos-u-vela/ethosu/vela/register_command_stream_util.py#L161) — `get_strides()` NHCWB16 branch  
+> **Source**: [ethosu/vela/register_command_stream_util.py](ethos-u-vela/ethosu/vela/register_command_stream_util.py#L174) — `get_address()` formula
 
 #### Concrete example: 4×4×8 feature map, NHCWB16, int8
 
@@ -653,8 +653,8 @@ Row 1, C_block=1:            offset 192..255
 **When depth ≥ 16 and depth%16 = 0**: NHCWB16 = no waste, always 16-byte aligned bursts.  
 **When depth%32 = 0**: NHWC is equally efficient (stride_x is a multiple of 16).
 
-> **Source**: [ethosu/vela/npu_performance.py](ethosu/vela/npu_performance.py#L197) — `_strides_for_shape()`  
-> **Source**: [ethosu/vela/npu_performance.py](ethosu/vela/npu_performance.py#L213) — burst efficiency calculation
+> **Source**: [ethosu/vela/npu_performance.py](ethos-u-vela/ethosu/vela/npu_performance.py#L197) — `_strides_for_shape()`  
+> **Source**: [ethosu/vela/npu_performance.py](ethos-u-vela/ethosu/vela/npu_performance.py#L213) — burst efficiency calculation
 
 ---
 
@@ -683,9 +683,9 @@ def check_alignment(payload, required_alignment):
         raise ByteAlignmentError(...)
 ```
 
-> **Source**: [ethosu/vela/register_command_stream_generator.py](ethosu/vela/register_command_stream_generator.py#L443) — `generate_ifm()`  
-> **Source**: [ethosu/vela/register_command_stream_generator.py](ethosu/vela/register_command_stream_generator.py#L481) — `generate_ofm()`  
-> **Source**: [ethosu/vela/register_command_stream_util.py](ethosu/vela/register_command_stream_util.py#L59) — 16-byte alignment check
+> **Source**: [ethosu/vela/register_command_stream_generator.py](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L443) — `generate_ifm()`  
+> **Source**: [ethosu/vela/register_command_stream_generator.py](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L481) — `generate_ofm()`  
+> **Source**: [ethosu/vela/register_command_stream_util.py](ethos-u-vela/ethosu/vela/register_command_stream_util.py#L59) — 16-byte alignment check
 
 ---
 
@@ -702,9 +702,9 @@ def check_alignment(payload, required_alignment):
 | **IFM depth multiple of 32** (int8) | No partial IFM blocks; no padding zeros | Pad or group IFM channels; avoids `clipped_ifm_block_depth < 32` |
 | **Kernel dimensions ≤ 8** | Single sub-kernel; no decomposition overhead | Standard 3×3, 5×5 kernels; avoid 9×9+ or use depthwise decomposition |
 
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L34) — `ZERO_RUN_THRES=4`  
-> **Source**: [ethosu/vela/weight_compressor.py](ethosu/vela/weight_compressor.py#L383) — block traversal selection  
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L1004) — `ifm_block_depth` (32 for int8)
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L34) — `ZERO_RUN_THRES=4`  
+> **Source**: [ethosu/vela/weight_compressor.py](ethos-u-vela/ethosu/vela/weight_compressor.py#L383) — block traversal selection  
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L1004) — `ifm_block_depth` (32 for int8)
 
 ### 3.2 IFM / OFM layout optimizations
 
@@ -718,9 +718,9 @@ def check_alignment(payload, required_alignment):
 | **Keep feature maps in SRAM** | Avoid DRAM latency (DRAM latency ≫ SRAM); SRAM bandwidth = 16 B/cycle | Size model to fit activations in SRAM (48 KB SHRAM + system SRAM) |
 | **Align base addresses to 16 bytes** | Hardware requires 16-byte alignment on all BASE/STRIDE registers | Use 16-byte aligned allocators; vela enforces this via `check_alignment()` |
 
-> **Source**: [ethosu/vela/architecture_features.py](ethosu/vela/architecture_features.py#L293) — AXI width=128 bits=16 bytes/cycle  
-> **Source**: [ethosu/vela/architecture_features.py](ethosu/vela/architecture_features.py#L496) — `calc_ifm_block_depth()` (32 int8, 16 int16)  
-> **Source**: [ethosu/vela/register_command_stream_util.py](ethosu/vela/register_command_stream_util.py#L59) — alignment enforcement
+> **Source**: [ethosu/vela/architecture_features.py](ethos-u-vela/ethosu/vela/architecture_features.py#L293) — AXI width=128 bits=16 bytes/cycle  
+> **Source**: [ethosu/vela/architecture_features.py](ethos-u-vela/ethosu/vela/architecture_features.py#L496) — `calc_ifm_block_depth()` (32 int8, 16 int16)  
+> **Source**: [ethosu/vela/register_command_stream_util.py](ethos-u-vela/ethosu/vela/register_command_stream_util.py#L59) — alignment enforcement
 
 ### 3.3 Block traversal: DEPTH_FIRST vs PART_KERNEL_FIRST
 
@@ -740,5 +740,5 @@ if part_kernel_util >= depth_utilization or ifm_depth <= 8:
 Vela chooses automatically, but you can force better hardware utilization by ensuring
 `ifm_depth % 32 == 0` (for int8) to always prefer depth-first without DPU under-utilization.
 
-> **Source**: [ethosu/vela/weight_compressor.py](ethosu/vela/weight_compressor.py#L383) — traversal selection logic  
-> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethosu/mlw_codec/mlw_encode.c#L1004) — `ifm_block_depth` definition in `reorder()`
+> **Source**: [ethosu/vela/weight_compressor.py](ethos-u-vela/ethosu/vela/weight_compressor.py#L383) — traversal selection logic  
+> **Source**: [ethosu/mlw_codec/mlw_encode.c](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L1004) — `ifm_block_depth` definition in `reorder()`

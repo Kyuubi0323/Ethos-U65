@@ -4,17 +4,17 @@
 
 ## 1. Hardware Configurations
 
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L222-L230) — `ArchitectureFeatures.accelerator_configs` dict
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L222-L230) — `ArchitectureFeatures.accelerator_configs` dict
 
 | Variant | MACs/cycle | Cores | OFM ublock (H×W×D) | IFM ublock | SHRAM banks | AXI bus width | Address space |
 |---|---|---|---|---|---|---|---|
 | Ethos-U65-256 | 256 | 1 | 2×2×8 | 2×2×8 | 48 | 128-bit (16 B/cycle) | 40-bit (1 TB) |
 | Ethos-U65-512 | 512 (2×256) | 2 | 2×2×8 | 2×2×8 | 48 | 128-bit (16 B/cycle) | 40-bit (1 TB) |
 
-- **SHRAM total size**: 48 banks × 1024 bytes = **48 KB** — [`architecture_features.py:435`](ethosu/vela/architecture_features.py#L435) `self.shram_bank_size = 1024`
-- **Max outstanding DMA transactions**: 2 (vs 1 for U55) — [`architecture_features.py:294`](ethosu/vela/architecture_features.py#L294) `self.max_outstanding_dma = 2`
-- **Max sub-kernel size**: 8×8 — [`architecture_features.py:243`](ethosu/vela/architecture_features.py#L243) `SubKernelMax = Block(8, 8, 65536)`
-- **Max outstanding kernel blocks (double buffering)**: 2 — [`architecture_features.py:363`](ethosu/vela/architecture_features.py#L363) `self.max_outstanding_kernels = 2`
+- **SHRAM total size**: 48 banks × 1024 bytes = **48 KB** — [`architecture_features.py:435`](ethos-u-vela/ethosu/vela/architecture_features.py#L435) `self.shram_bank_size = 1024`
+- **Max outstanding DMA transactions**: 2 (vs 1 for U55) — [`architecture_features.py:294`](ethos-u-vela/ethosu/vela/architecture_features.py#L294) `self.max_outstanding_dma = 2`
+- **Max sub-kernel size**: 8×8 — [`architecture_features.py:243`](ethos-u-vela/ethosu/vela/architecture_features.py#L243) `SubKernelMax = Block(8, 8, 65536)`
+- **Max outstanding kernel blocks (double buffering)**: 2 — [`architecture_features.py:363`](ethos-u-vela/ethosu/vela/architecture_features.py#L363) `self.max_outstanding_kernels = 2`
 
 ---
 
@@ -22,7 +22,7 @@
 
 ### MACs per cycle breakdown
 
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L370-L376) — `ArchitectureFeatures.__init__()`, DPU sizing variables
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L370-L376) — `ArchitectureFeatures.__init__()`, DPU sizing variables
 
 The U65 DPU is organized around a **micro-block (ublock)** of `2 × 2 × 8`:
 
@@ -50,7 +50,7 @@ self.num_macs_per_cycle = dpu_min_height * dpu_min_width * dpu_dot_product_width
 
 ### DPU cycles for one OFM block (Conv2D, depth-first mode)
 
-> **Source**: [`ethosu/vela/npu_performance.py`](ethosu/vela/npu_performance.py#L314-L435) — `_estimate_conv_cycles()`
+> **Source**: [`ethosu/vela/npu_performance.py`](ethos-u-vela/ethosu/vela/npu_performance.py#L314-L435) — `_estimate_conv_cycles()`
 
 ```
 cycles_wb = 32 × ofm_ublock_depth / 8 = 32 cycles   (write-back pipeline drain)
@@ -74,7 +74,7 @@ cycles_dpu_block /= ncores
 
 ### DPU cycles for Part-Kernel-First mode (small IFM depth ≤ 8)
 
-> **Source**: [`ethosu/vela/npu_performance.py`](ethosu/vela/npu_performance.py#L385-L396) — `_estimate_conv_cycles()`, `is_partkernel` branch
+> **Source**: [`ethosu/vela/npu_performance.py`](ethos-u-vela/ethosu/vela/npu_performance.py#L385-L396) — `_estimate_conv_cycles()`, `is_partkernel` branch
 
 IFM block depth is always 16 in this mode. Kernel steps are rounded up to 4 (int8) or 2 (int16):
 
@@ -85,7 +85,7 @@ cycles = max(cycles_wb, 4 × num_ublk_xy) × num_kernel_steps × ceil(IFM_depth/
 
 ### DPU cycles for Depthwise Conv
 
-> **Source**: [`ethosu/vela/npu_performance.py`](ethosu/vela/npu_performance.py#L368-L377) — `_estimate_conv_cycles()`, `ConvolutionDepthWise` branch
+> **Source**: [`ethosu/vela/npu_performance.py`](ethos-u-vela/ethosu/vela/npu_performance.py#L368-L377) — `_estimate_conv_cycles()`, `ConvolutionDepthWise` branch
 
 ```
 cycles = 4 × num_ublk_xy  (×2 if int16)
@@ -95,8 +95,8 @@ cycles_dpu_block = max(cycles_wb, cycles) × num_kernel_steps × num_ublk_z
 
 ### Minimum cycles per OFM element — output stage
 
-> **Source**: [`ethosu/vela/npu_performance.py`](ethosu/vela/npu_performance.py#L263-L311) — `_estimate_output_cycles_per_element()`
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L484-L492) — `_generate_output_perf_tables()`
+> **Source**: [`ethosu/vela/npu_performance.py`](ethos-u-vela/ethosu/vela/npu_performance.py#L263-L311) — `_estimate_output_cycles_per_element()`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L484-L492) — `_generate_output_perf_tables()`
 
 After the DPU, the write-out / activation / bias-scale stage has its own throughput:
 
@@ -127,8 +127,8 @@ Total time per OFM block = `max(DPU_cycles, output_stage_cycles)`.
 
 ## 3. Memory Bandwidth Per Cycle
 
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L293-L311) — AXI port widths and `memory_bandwidths_per_cycle`
-> **Source**: [`ethosu/vela/npu_performance.py`](ethosu/vela/npu_performance.py#L227-L260) — `_estimate_minimum_memory_cycles()`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L293-L311) — AXI port widths and `memory_bandwidths_per_cycle`
+> **Source**: [`ethosu/vela/npu_performance.py`](ethos-u-vela/ethosu/vela/npu_performance.py#L227-L260) — `_estimate_minimum_memory_cycles()`
 
 U65 AXI bus = **128 bits = 16 bytes per cycle** for all memory regions.
 
@@ -153,7 +153,7 @@ self.memory_bandwidths_per_cycle = (
 
 ### IFM block bytes fetched per OFM block (Conv2D example)
 
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L496-L530) — `calc_ifm_block_depth()` and `get_ifm_block_size()`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L496-L530) — `calc_ifm_block_depth()` and `get_ifm_block_size()`
 
 ```
 IFM_block_H = ceil((OFM_block_H − 1) × stride_H + kernel_H)  [aligned to ifm_ublock=2]
@@ -167,7 +167,7 @@ IFM_bytes_per_block = IFM_block_H × IFM_block_W × IFM_block_D × (bitdepth/8)
 
 ### Weight bytes per OFM block (compressed, worst case uncompressed)
 
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L321-L490) — `encode_weight_and_scale_tensor()`
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L321-L490) — `encode_weight_and_scale_tensor()`
 
 ```
 Weight elements = kernel_H × kernel_W × IFM_depth × OFM_block_D
@@ -179,7 +179,7 @@ After compression, padded to 16-byte boundary per sub-stream
 
 ### Bias/scale bytes
 
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L202-L232) — `encode_bias()`
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L202-L232) — `encode_bias()`
 
 ```
 10 bytes per output channel (80-bit packed: 40b bias + 32b scale + 6b shift + 2b reserved)
@@ -190,8 +190,8 @@ Total for one OFM block = OFM_block_D × 10 bytes, padded to 16 bytes
 
 ## 4. SHRAM Buffer Layout (48 KB)
 
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L435-L448) — SHRAM constants in `__init__()`
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L462-L479) — `generate_block_config()`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L435-L448) — SHRAM constants in `__init__()`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L462-L479) — `generate_block_config()`
 
 SHRAM is divided into:
 
@@ -218,7 +218,7 @@ The IFM buffer and accumulator share the 44 available KB, **double-buffered**:
 
 #### SHRAM requirement for a block
 
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L462-L479) — `generate_block_config()`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L462-L479) — `generate_block_config()`
 
 ```python
 # architecture_features.py:462-479
@@ -233,7 +233,7 @@ def generate_block_config(self, width, height, depth):
 
 Granule per data type (U65-256/512):
 
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L222-L230) — `shram_granules` field in `ArchitectureConfig`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L222-L230) — `shram_granules` field in `ArchitectureConfig`
 
 | Data | Granule (banks) |
 |---|---|
@@ -260,7 +260,7 @@ Accelerator.Ethos_U65_512: ArchitectureConfig(
 
 ### Step 1 — Zero-point correction
 
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L362-L365) — inside `encode_weight_and_scale_tensor()`
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L362-L365) — inside `encode_weight_and_scale_tensor()`
 
 ```python
 # weight_compressor.py:362-365
@@ -272,9 +272,9 @@ weights = quant_buf - zero_point
 
 ### Step 2 — Block traversal reordering
 
-> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethosu/mlw_codec/mlw_encode.c#L969-L1119) — `reorder()` static function
-> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethosu/mlw_codec/mlw_encode.c#L1121) — `mlw_reorder_encode()` public entry point
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L141-L196) — `encode_weights()` Python wrapper
+> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L969-L1119) — `reorder()` static function
+> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L1121) — `mlw_reorder_encode()` public entry point
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L141-L196) — `encode_weights()` Python wrapper
 
 Weights are physically reordered in memory to match NPU traversal order **before** compression.
 
@@ -293,7 +293,7 @@ OFM blocks (depth slices of ofm_block_depth)
 
 **Traversal mode selection**:
 
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L383-L391) — `encode_weight_and_scale_tensor()`, block traversal selection
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L383-L391) — `encode_weight_and_scale_tensor()`, block traversal selection
 
 | Mode | When | IFM depth block |
 |---|---|---|
@@ -313,7 +313,7 @@ if part_kernel_utilization >= depth_utilization or ifm_depth <= 8:
 
 **For U65-512 with 2 cores**, weights are deinterleaved across cores before reordering:
 
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L234-L237) — `core_deinterleave()`
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L234-L237) — `core_deinterleave()`
 
 ```python
 # weight_compressor.py:234-237
@@ -326,15 +326,15 @@ def core_deinterleave(hwio, core, ncores):
 
 ### Step 3 — MLW compression (`mlw_encode()`)
 
-> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethosu/mlw_codec/mlw_encode.c#L872-L968) — `mlw_encode()`
+> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L872-L968) — `mlw_encode()`
 
 The reordered weight stream is compressed with Arm's MLW codec:
 
 #### a) Palette sections
 
-> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethosu/mlw_codec/mlw_encode.c#L80-L221) — `search_palette_sections()`
-> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethosu/mlw_codec/mlw_encode.c#L222-L327) — `create_palette()`
-> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethosu/mlw_codec/mlw_encode.c#L328-L398) — `find_palette()`
+> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L80-L221) — `search_palette_sections()`
+> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L222-L327) — `create_palette()`
+> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L328-L398) — `find_palette()`
 
 - Frequency histogram of all weight values (−255 to +255) computed
 - If zero is >4× more frequent than the next value → **zero-run mode** activated (zeros coded as run-lengths separately)
@@ -356,7 +356,7 @@ int use_zero_runs = most_common_val[0]==0
 
 #### c) GRC entropy coding (Golomb-Rice-like)
 
-> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethosu/mlw_codec/mlw_encode.c#L403-L557) — `search_grc_params()`
+> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L403-L557) — `search_grc_params()`
 
 - Weight indices are entropy-coded with adaptive GRC divisor (WDIV 0–5) and truncation flag
 - A **Viterbi-like search** finds optimal GRC parameter transitions across sections
@@ -373,8 +373,8 @@ static const uint8_t z_grc_params[] = { 0x00, 0x01, 0x02, 0x03, 0x04 };
 
 #### d) Bitstream slice format
 
-> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethosu/mlw_codec/mlw_encode.c#L560-L727) — `encode_slice()`
-> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethosu/mlw_codec/mlw_encode.c#L728-L871) — `encode_section()`
+> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L560-L727) — `encode_slice()`
+> **Source**: [`ethosu/mlw_codec/mlw_encode.c`](ethos-u-vela/ethosu/mlw_codec/mlw_encode.c#L728-L871) — `encode_section()`
 
 ```c
 // encode_slice() — mlw_encode.c:608-625
@@ -405,9 +405,9 @@ All weight sub-streams are padded to **16-byte (128-bit) alignment**.
 
 ### Step 4 — Bias/scale packing
 
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L202-L232) — `encode_bias()`
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L254-L320) — `_prepare_scale_and_bias()`
-> **Source**: [`ethosu/vela/scaling.py`](ethosu/vela/scaling.py#L33-L57) — `quantise_scale()` and `reduced_quantise_scale()`
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L202-L232) — `encode_bias()`
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L254-L320) — `_prepare_scale_and_bias()`
+> **Source**: [`ethosu/vela/scaling.py`](ethos-u-vela/ethosu/vela/scaling.py#L33-L57) — `quantise_scale()` and `reduced_quantise_scale()`
 
 Each output channel gets a **10-byte (80-bit)** packed entry:
 
@@ -464,7 +464,7 @@ if remainder > 0:
 
 ### Complete per-core stream layout
 
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L430-L470) — inner loop of `encode_weight_and_scale_tensor()`
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L430-L470) — inner loop of `encode_weight_and_scale_tensor()`
 
 ```
 [ Bias/scale for core N: OFM_channels × 10 bytes, padded to 16B ]
@@ -477,7 +477,7 @@ if remainder > 0:
 
 ### Command word formats
 
-> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethosu/vela/register_command_stream_generator.py#L123-L225) — `CommandStreamEmitter` class
+> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L123-L225) — `CommandStreamEmitter` class
 
 ```python
 # register_command_stream_generator.py:100-122
@@ -507,12 +507,12 @@ Redundant register writes are suppressed — a register is only written if the v
 
 ### Register sequence for Conv2D (one block)
 
-> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethosu/vela/register_command_stream_generator.py#L443-L500) — `generate_ifm()`, `generate_ofm()`
-> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethosu/vela/register_command_stream_generator.py#L521-L570) — `generate_weights()`, `generate_biases()`
-> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethosu/vela/register_command_stream_generator.py#L502-L520) — `generate_kernel()`
-> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethosu/vela/register_command_stream_generator.py#L315-L321) — `generate_padding()`
-> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethosu/vela/register_command_stream_generator.py#L573-L597) — `generate_shram_registers()`
-> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethosu/vela/register_command_stream_generator.py#L323-L382) — `generate_activation()`
+> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L443-L500) — `generate_ifm()`, `generate_ofm()`
+> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L521-L570) — `generate_weights()`, `generate_biases()`
+> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L502-L520) — `generate_kernel()`
+> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L315-L321) — `generate_padding()`
+> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L573-L597) — `generate_shram_registers()`
+> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L323-L382) — `generate_activation()`
 
 ```
 # IFM — generate_ifm(), register_command_stream_generator.py:443
@@ -569,8 +569,8 @@ NPU_OP_CONV / NPU_OP_DEPTHWISE_CONV / NPU_OP_POOL / NPU_OP_ELEMENTWISE
 
 ### Alignment enforcement
 
-> **Source**: [`ethosu/vela/register_command_stream_util.py`](ethosu/vela/register_command_stream_util.py#L59) — `check_alignment()`
-> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethosu/vela/register_command_stream_generator.py#L530-L543) — alignment checks inside `generate_weights()`
+> **Source**: [`ethosu/vela/register_command_stream_util.py`](ethos-u-vela/ethosu/vela/register_command_stream_util.py#L59) — `check_alignment()`
+> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L530-L543) — alignment checks inside `generate_weights()`
 
 ```python
 # register_command_stream_generator.py:530-543
@@ -581,7 +581,7 @@ for core, (addr, length) in enumerate(...):
 
 ### DMA wait/dependency commands
 
-> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethosu/vela/register_command_stream_generator.py#L213-L220) — `cmd_wait()`
+> **Source**: [`ethosu/vela/register_command_stream_generator.py`](ethos-u-vela/ethosu/vela/register_command_stream_generator.py#L213-L220) — `cmd_wait()`
 
 Between blocks, the command stream inserts `NPU_KERNEL_WAIT` and `NPU_DMA_WAIT` to synchronize:
 - `NPU_KERNEL_WAIT(channel, outstanding)` — stall until pending kernel blocks ≤ `outstanding`
@@ -595,8 +595,8 @@ Max outstanding kernels = 2 (pipeline depth), max outstanding DMA = 2 for U65.
 
 ### How many bytes per cycle for Conv2D (int8, U65-256)?
 
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L293-L311) — AXI bus width and bandwidth
-> **Source**: [`ethosu/vela/npu_performance.py`](ethosu/vela/npu_performance.py#L314-L435) — `_estimate_conv_cycles()`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L293-L311) — AXI bus width and bandwidth
+> **Source**: [`ethosu/vela/npu_performance.py`](ethos-u-vela/ethosu/vela/npu_performance.py#L314-L435) — `_estimate_conv_cycles()`
 
 | Item | Per cycle |
 |---|---|
@@ -613,7 +613,7 @@ The DPU is **compute-bound** when weight bandwidth cannot keep up:
 
 ### Minimum cycles for one OFM element (U65-256, Conv int8)
 
-> **Source**: [`ethosu/vela/npu_performance.py`](ethosu/vela/npu_performance.py#L419-L435) — final cycle calculation in `_estimate_conv_cycles()`
+> **Source**: [`ethosu/vela/npu_performance.py`](ethos-u-vela/ethosu/vela/npu_performance.py#L419-L435) — final cycle calculation in `_estimate_conv_cycles()`
 
 ```
 DPU: 1 MAC / 256 MACs_per_cycle = 0.0039 cycles/MAC
@@ -635,12 +635,12 @@ For a 3×3 Conv with 64 IFM channels:
 
 ## 8. Key Constraints and Alignment Rules
 
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L365) — `ofm_block_max`
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L400-L411) — `min_block_sizes`
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L243) — `SubKernelMax`
-> **Source**: [`ethosu/vela/architecture_features.py`](ethosu/vela/architecture_features.py#L496-L502) — `calc_ifm_block_depth()`
-> **Source**: [`ethosu/vela/register_command_stream_util.py`](ethosu/vela/register_command_stream_util.py#L59) — `check_alignment()`
-> **Source**: [`ethosu/vela/weight_compressor.py`](ethosu/vela/weight_compressor.py#L202-L232) — `encode_bias()` (10-byte format, 6-bit shift, Q31 scale)
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L365) — `ofm_block_max`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L400-L411) — `min_block_sizes`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L243) — `SubKernelMax`
+> **Source**: [`ethosu/vela/architecture_features.py`](ethos-u-vela/ethosu/vela/architecture_features.py#L496-L502) — `calc_ifm_block_depth()`
+> **Source**: [`ethosu/vela/register_command_stream_util.py`](ethos-u-vela/ethosu/vela/register_command_stream_util.py#L59) — `check_alignment()`
+> **Source**: [`ethosu/vela/weight_compressor.py`](ethos-u-vela/ethosu/vela/weight_compressor.py#L202-L232) — `encode_bias()` (10-byte format, 6-bit shift, Q31 scale)
 
 | Rule | Value | Source line |
 |---|---|---|
